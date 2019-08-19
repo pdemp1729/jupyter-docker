@@ -31,17 +31,11 @@ RUN pip3 install jupyterlab && jupyter serverextension enable --py jupyterlab
 # Set the locale
 ENV LANG=C.UTF-8
 
-# Add a script that we will use to correct permissions after running certain commands
-ADD fix-permissions /usr/local/bin/fix-permissions
-RUN chmod +x /usr/local/bin/fix-permissions
-
+# make sure all jupyter config and data files are accessible by all users
 RUN chmod -R 777 /jupyter
 
 # Expose Jupyter port & cmd
 EXPOSE 8888
-
-RUN mkdir /home/$NB_USER && \
-    fix-permissions /home/$NB_USER
 
 RUN useradd -u $NB_UID $NB_USER && \
     chown -R $NB_USER /app/data && \
