@@ -21,12 +21,13 @@ RUN mkdir -p $JUPYTER_RUNTIME_DIR
 RUN apt-get update && apt-get install -y build-essential python3-dev
 
 # Install Jupyter
-RUN pip3 install jupyter
-RUN pip3 install ipywidgets
-RUN jupyter nbextension enable --py widgetsnbextension
+RUN pip3 install jupyter && \
+    pip3 install ipywidgets && \
+    jupyter nbextension enable --py widgetsnbextension
 
 # Install JupyterLab
-RUN pip3 install jupyterlab && jupyter serverextension enable --py jupyterlab
+RUN pip3 install jupyterlab && \
+    jupyter serverextension enable --py jupyterlab
 
 # Set the locale
 ENV LANG=C.UTF-8
