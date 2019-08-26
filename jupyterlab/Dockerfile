@@ -32,6 +32,9 @@ RUN pip3 install jupyterlab && \
 # Set the locale
 ENV LANG=C.UTF-8
 
+# Install additional requirements
+RUN pip3 install --trusted-host pypi.python.org -r /app/requirements.txt
+
 # make sure all jupyter config and data files are accessible by all users
 RUN chmod -R 777 /jupyter
 
