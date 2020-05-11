@@ -1,2 +1,7 @@
+*.pyc
+
 # Jupyter notebooks checkpoints
 .ipynb_checkpoints
+
+# IntelliJ settings
+.idea
