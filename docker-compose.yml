@@ -1,13 +1,19 @@
 version: '3'
 
 services:
+  default:
+    image: base:latest
+    container_name: base
+    volumes:
+      - .:/app
+
   jupyterlab:
-    build: ./jupyterlab
+    image: base:latest
     container_name: jupyter-lab
+    volumes:
+      - .:/app
     expose:
       - 8888
     ports:
       - "8888:8888"
-    volumes:
-      - ./jupyterlab/data:/app/data
     entrypoint: sh -c 'jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --notebook-dir=/app/data'
