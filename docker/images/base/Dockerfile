@@ -45,7 +45,7 @@ COPY . /app
 # Create a non-root user and give them permissions to modify the data folder
 # and relevant jupyter files
 RUN useradd -u $APP_UID $APP_USER && \
-    chown -R $APP_USER /app/data && \
+    chown -R $APP_USER /app/notebooks && \
     chown -R $APP_USER /usr/local/share/jupyter/lab
 
 # Switch to non-root user
