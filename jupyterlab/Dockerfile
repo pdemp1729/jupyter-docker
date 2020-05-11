@@ -2,47 +2,51 @@ FROM python:3.7-slim
 
 WORKDIR /app
 
-COPY . /app
-
-ARG NB_USER="bob"
-ARG NB_UID="1000"
-ARG NB_GID="100"
+ARG APP_USER="bob"
+ARG APP_UID="1000"
 
 ENV JUPYTER_CONFIG_DIR /jupyter/.jupyter
 ENV JUPYTER_DATA_DIR /jupyter/.local/share/jupyter
 ENV JUPYTER_RUNTIME_DIR /jupyter/.local/share/jupyter/runtime
+# Add /app to the python path. This ensures we can import modules correctly
+ENV PYTHONPATH="$PYTHONPATH:/app"
+# Set the locale
+ENV LANG=C.UTF-8
 
 # make sure the directories exist
 RUN mkdir -p $JUPYTER_CONFIG_DIR
 RUN mkdir -p $JUPYTER_DATA_DIR
 RUN mkdir -p $JUPYTER_RUNTIME_DIR
 
-# Install required packages
-RUN apt-get update && apt-get install -y build-essential python3-dev
+# Upgrade pip
+RUN pip3 install --upgrade pip
 
-# Install Jupyter
+# Install Jupyter and Jupyterlab
 RUN pip3 install jupyter && \
     pip3 install ipywidgets && \
-    jupyter nbextension enable --py widgetsnbextension
-
-# Install JupyterLab
-RUN pip3 install jupyterlab && \
+    pip3 install jupyterlab && \
+    jupyter nbextension enable --py widgetsnbextension && \
     jupyter serverextension enable --py jupyterlab
 
-# Set the locale
-ENV LANG=C.UTF-8
+COPY jupyterlab/data/requirements.txt /tmp/requirements.txt
 
-# Install additional requirements
-RUN pip3 install --trusted-host pypi.python.org -r /app/requirements.txt
+# Install additional requirements for the package
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3-dev && \
+    rm -r /var/lib/apt/lists/* && \
+    pip3 install --trusted-host pypi.python.org -r /tmp/requirements.txt && \
+    apt-get autoremove -y
 
 # make sure all jupyter config and data files are accessible by all users
 RUN chmod -R 777 /jupyter
 
-# Expose Jupyter port & cmd
-EXPOSE 8888
+COPY . /app
 
-RUN useradd -u $NB_UID $NB_USER && \
-    chown -R $NB_USER /app/data && \
-    chown -R $NB_USER /usr/local/share/jupyter/lab
+# Create a non-root user and give them permissions to modify the data folder
+# and relevant jupyter files
+RUN useradd -u $APP_UID $APP_USER && \
+    chown -R $APP_USER /app/data && \
+    chown -R $APP_USER /usr/local/share/jupyter/lab
 
-USER $NB_USER
+# Switch to non-root user
+USER $APP_USER
