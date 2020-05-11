@@ -5,6 +5,7 @@ WORKDIR /app
 ARG APP_USER="bob"
 ARG APP_UID="1000"
 
+ENV HOME /home/$APP_USER
 ENV JUPYTER_CONFIG_DIR /jupyter/.jupyter
 ENV JUPYTER_DATA_DIR /jupyter/.local/share/jupyter
 ENV JUPYTER_RUNTIME_DIR /jupyter/.local/share/jupyter/runtime
@@ -14,6 +15,7 @@ ENV PYTHONPATH="$PYTHONPATH:/app"
 ENV LANG=C.UTF-8
 
 # make sure the directories exist
+RUN mkdir -p $HOME
 RUN mkdir -p $JUPYTER_CONFIG_DIR
 RUN mkdir -p $JUPYTER_DATA_DIR
 RUN mkdir -p $JUPYTER_RUNTIME_DIR
@@ -42,11 +44,13 @@ RUN chmod -R 777 /jupyter
 
 COPY . /app
 
-# Create a non-root user and give them permissions to modify the data folder
-# and relevant jupyter files
+# Create a non-root user and give them permissions to modify the data folder,
+# relevant jupyter files, and the home folder
 RUN useradd -u $APP_UID $APP_USER && \
     chown -R $APP_USER /app/notebooks && \
-    chown -R $APP_USER /usr/local/share/jupyter/lab
+    chown -R $APP_USER /usr/local/share/jupyter/lab && \
+    chown -R $APP_USER $HOME
+
 
 # Switch to non-root user
 USER $APP_USER
