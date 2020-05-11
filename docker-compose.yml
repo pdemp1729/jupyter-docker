@@ -9,7 +9,7 @@ services:
     environment:
       CONFIG_FILE: ${MAIN_CONFIG_FILE}
 
-  jupyterlab:
+  jupyter-lab:
     image: base:latest
     container_name: jupyter-lab
     volumes:
