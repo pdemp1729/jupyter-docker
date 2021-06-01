@@ -30,7 +30,7 @@ RUN pip3 install jupyter && \
     jupyter nbextension enable --py widgetsnbextension && \
     jupyter serverextension enable --py jupyterlab
 
-COPY docker/images/base/requirements.txt /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt
 
 # Install additional requirements for the package
 RUN apt-get update && \
