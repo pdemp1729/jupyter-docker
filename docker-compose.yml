@@ -1,16 +1,8 @@
 version: '3'
 
 services:
-  default:
-    image: base:latest
-    container_name: base
-    volumes:
-      - .:/app
-    environment:
-      CONFIG_FILE: ${MAIN_CONFIG_FILE}
-
   jupyter-lab:
-    image: base:latest
+    image: jupyter-lab:latest
     container_name: jupyter-lab
     volumes:
       - .:/app
