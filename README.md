@@ -9,7 +9,8 @@ The docker image associated with this project can be built from the root directo
 docker build -f Dockerfile -t jupyter-lab .
 ```
 
-The JupyterLab service can then be run in the background using
+After specifying the notebook directory (`NB_DIRECTORY`) and optional notebook-specific
+config (`NB_CONFIG`) in a .env file, the JupyterLab service can then be run in the background using
 ```
 docker-compose up -d
 ```
