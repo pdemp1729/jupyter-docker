@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker exec -it jupyter-lab jupyter notebook list
+docker exec -it jupyter-lab jupyter server list
