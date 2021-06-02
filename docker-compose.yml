@@ -5,7 +5,7 @@ services:
     image: jupyter-lab:latest
     container_name: jupyter-lab
     volumes:
-      - .:/app
+      - ./notebooks:${NB_DIRECTORY}
     expose:
       - 8888
     ports:

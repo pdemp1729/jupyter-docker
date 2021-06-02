@@ -15,42 +15,42 @@ ENV PYTHONPATH="$PYTHONPATH:/app"
 ENV LANG=C.UTF-8
 
 # make sure the directories exist
-RUN mkdir -p $HOME
-RUN mkdir -p $JUPYTER_CONFIG_DIR
-RUN mkdir -p $JUPYTER_DATA_DIR
-RUN mkdir -p $JUPYTER_RUNTIME_DIR
+RUN mkdir -p $HOME && \
+    mkdir -p $JUPYTER_CONFIG_DIR && \
+    mkdir -p $JUPYTER_DATA_DIR && \
+    mkdir -p $JUPYTER_RUNTIME_DIR
 
 # Upgrade pip
 RUN pip3 install --upgrade pip
 
 # Install Jupyter and Jupyterlab
-RUN pip3 install jupyter && \
-    pip3 install ipywidgets && \
-    pip3 install jupyterlab && \
+RUN pip3 install \
+        'ipywidgets==7.6.3' \
+        'jupyter==1.0.0' \
+        'jupyterlab==3.0.16' && \
     jupyter nbextension enable --py widgetsnbextension && \
     jupyter serverextension enable --py jupyterlab
 
-COPY requirements.txt /tmp/requirements.txt
-
 # Install additional requirements for the package
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3-dev && \
+    apt-get install -y --no-install-recommends nodejs && \
     rm -r /var/lib/apt/lists/* && \
-    pip3 install --trusted-host pypi.python.org -r /tmp/requirements.txt && \
     apt-get autoremove -y
 
-# make sure all jupyter config and data files are accessible by all users
-RUN chmod -R 777 /jupyter
+COPY requirements.txt /tmp/requirements.txt
 
-COPY . /app
+RUN pip3 install --trusted-host pypi.python.org -r /tmp/requirements.txt
+
+COPY notebooks /app/notebooks
 
 # Create a non-root user and give them permissions to modify the data folder,
-# relevant jupyter files, and the home folder
+# relevant jupyter files, and the home folder.
+# Ensure all jupyter config and data files are accessible by all users
 RUN useradd -u $APP_UID $APP_USER && \
+    chmod -R 777 /jupyter && \
     chown -R $APP_USER /app/notebooks && \
     chown -R $APP_USER /usr/local/share/jupyter/lab && \
     chown -R $APP_USER $HOME
-
 
 # Switch to non-root user
 USER $APP_USER
