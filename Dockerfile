@@ -24,7 +24,7 @@ RUN mkdir -p $HOME && \
 RUN pip3 install --upgrade pip
 
 # Install Jupyter and Jupyterlab
-RUN pip3 install \
+RUN pip3 install --no-cache-dir \
         'ipywidgets==7.6.3' \
         'jupyter==1.0.0' \
         'jupyterlab==3.0.16' && \
@@ -39,7 +39,7 @@ RUN apt-get update && \
 
 COPY requirements.txt /tmp/requirements.txt
 
-RUN pip3 install --trusted-host pypi.python.org -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --trusted-host pypi.python.org -r /tmp/requirements.txt
 
 COPY notebooks /app/notebooks
 
