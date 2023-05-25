@@ -1,18 +1,35 @@
-FROM python:3.9-slim
+FROM python:3.9.5-slim-buster as builder
 
-WORKDIR /app
+ENV APP_ROOT="/usr/app"
+WORKDIR ${APP_ROOT}
 
-ARG APP_USER="bob"
-ARG APP_UID="1000"
+COPY requirements.txt requirements.txt
 
+RUN python -m venv /opt/venv
+
+ENV PATH="$/opt/venv/bin:$PATH"
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+RUN pip install -r requirements.txt
+
+FROM python:3.9.5-slim-buster as jupyterlab
+
+ENV APP_ROOT="/usr/app"
+ENV PATH="$/opt/venv/bin:$PATH"
+ENV PYTHONPATH="$PYTHONPATH:${APP_ROOT}"
+
+ENV APP_USER="bob"
+ENV APP_UID="1000"
 ENV HOME /home/$APP_USER
 ENV JUPYTER_CONFIG_DIR /jupyter/.jupyter
 ENV JUPYTER_DATA_DIR /jupyter/.local/share/jupyter
 ENV JUPYTER_RUNTIME_DIR /jupyter/.local/share/jupyter/runtime
-# Add /app to the python path. This ensures we can import modules correctly
-ENV PYTHONPATH="$PYTHONPATH:/app"
-# Set the locale
-ENV LANG=C.UTF-8
+
+WORKDIR ${APP_ROOT}
+
+COPY --from=builder /opt/venv /opt/venv
 
 # make sure the directories exist
 RUN mkdir -p $HOME \
@@ -21,10 +38,10 @@ RUN mkdir -p $HOME \
     && mkdir -p $JUPYTER_RUNTIME_DIR
 
 # Upgrade pip
-RUN pip3 install --upgrade pip
+#RUN pip install --upgrade pip
 
 # Install Jupyter and Jupyterlab
-RUN pip3 install --no-cache-dir \
+RUN pip install --no-cache-dir \
         'ipywidgets==7.6.3' \
         'jupyter==1.0.0' \
         'jupyterlab==3.0.16' \
@@ -37,18 +54,14 @@ RUN apt-get update \
     && rm -r /var/lib/apt/lists/* \
     && apt-get autoremove -y
 
-COPY requirements.txt /tmp/requirements.txt
-
-RUN pip3 install --no-cache-dir --trusted-host pypi.python.org -r /tmp/requirements.txt
-
-COPY notebooks /app/notebooks
+COPY notebooks ${APP_ROOT}/notebooks
 
 # Create a non-root user and give them permissions to modify the data folder,
 # relevant jupyter files, and the home folder.
 # Ensure all jupyter config and data files are accessible by all users
 RUN useradd -u $APP_UID $APP_USER \
     && chmod -R 777 /jupyter \
-    && chown -R $APP_USER /app/notebooks \
+    && chown -R $APP_USER ${APP_ROOT}/notebooks \
     && chown -R $APP_USER /usr/local/share/jupyter/lab \
     && chown -R $APP_USER $HOME
 
