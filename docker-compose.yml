@@ -1,15 +1,21 @@
+# This configuration supports basic configuration using environment variables or an .env file
+# The following variables are supported:
+#
+# JUPYTER_PROJ_DIR             - Base path to which all the files will be volumed.
+#                                Default: .
+#
+# Feel free to modify this file to suit your needs.
+---
 version: '3'
 
 services:
   jupyter-lab:
-    image: jupyter-lab:latest
+    build: .
     container_name: jupyter-lab
     volumes:
-      - ./notebooks:${NB_DIRECTORY}
+      - ${JUPYTER_PROJ_DIR:-.}/notebooks:/usr/app/notebooks
     expose:
       - 8888
     ports:
       - "8888:8888"
-    environment:
-      CONFIG_FILE: ${NB_CONFIG_FILE}
-    entrypoint: sh -c 'jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --notebook-dir=${NB_DIRECTORY}'
+    entrypoint: sh -c 'jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --notebook-dir=/usr/app/notebooks'
