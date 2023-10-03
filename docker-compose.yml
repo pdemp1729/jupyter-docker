@@ -10,7 +10,10 @@ version: '3'
 
 services:
   jupyter-lab:
-    build: .
+    build:
+      context: .
+      args:
+        BASE_IMAGE: python:3.9.5-slim-buster
     container_name: jupyter-lab
     volumes:
       - ${JUPYTER_PROJ_DIR:-.}/notebooks:/usr/app/notebooks

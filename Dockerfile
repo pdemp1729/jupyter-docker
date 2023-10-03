@@ -1,23 +1,7 @@
-FROM python:3.9.5-slim-buster as builder
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
 
 ENV APP_ROOT="/usr/app"
-WORKDIR ${APP_ROOT}
-
-COPY requirements.txt requirements.txt
-
-RUN python -m venv /opt/venv
-
-ENV PATH="$/opt/venv/bin:$PATH"
-
-# Upgrade pip
-RUN pip install --upgrade pip
-
-RUN pip install -r requirements.txt
-
-FROM python:3.9.5-slim-buster as jupyterlab
-
-ENV APP_ROOT="/usr/app"
-ENV PATH="$/opt/venv/bin:$PATH"
 ENV PYTHONPATH="$PYTHONPATH:${APP_ROOT}"
 
 ENV APP_USER="bob"
@@ -29,19 +13,15 @@ ENV JUPYTER_RUNTIME_DIR /jupyter/.local/share/jupyter/runtime
 
 WORKDIR ${APP_ROOT}
 
-COPY --from=builder /opt/venv /opt/venv
-
 # make sure the directories exist
 RUN mkdir -p $HOME \
     && mkdir -p $JUPYTER_CONFIG_DIR \
     && mkdir -p $JUPYTER_DATA_DIR \
     && mkdir -p $JUPYTER_RUNTIME_DIR
 
-# Upgrade pip
-#RUN pip install --upgrade pip
-
 # Install Jupyter and Jupyterlab
-RUN pip install --no-cache-dir \
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir \
         'ipywidgets==7.6.3' \
         'jupyter==1.0.0' \
         'jupyterlab==3.0.16' \
